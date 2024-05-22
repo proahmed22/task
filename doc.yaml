@@ -1,0 +1,340 @@
+openapi: 3.0.0
+info:
+  title: Real Estate API
+  description: API for managing real estate listings, requests, and user authentication.
+  version: 1.0.0
+servers:
+  - url: http://your-api-url.com/api # Replace with your actual API URL
+
+paths:
+  # Authentication Endpoints
+  /auth/signUp:
+    post:
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                phone:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "200":
+          description: User registered successfully
+        "400":
+          description: Bad request (e.g., missing fields, invalid data)
+
+  /auth/logIn:
+    post:
+      summary: Log in a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                phone:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "200":
+          description: Login successful
+        "401":
+          description: Unauthorized (invalid credentials)
+
+  # Ads Endpoints
+  /ads:
+    post:
+      summary: Create a new ad (Agent/Admin)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                propertyType:
+                  type: string
+                area:
+                  type: number
+                price:
+                  type: number
+                city:
+                  type: string
+                district:
+                  type: string
+                description:
+                  type: string
+      responses:
+        "201":
+          description: Ad created successfully
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden (not allowed)
+
+    get:
+      summary: Get all ads (Admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+      responses:
+        "200":
+          description: List of ads
+        "401":
+          description: Unauthorized
+
+  /ads/{id}:
+    get:
+      summary: Get a specific ad
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Ad details
+        "404":
+          description: Ad not found
+
+    put:
+      summary: Update an ad (Agent)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                description:
+                  type: string
+                area:
+                  type: number
+                price:
+                  type: number
+      responses:
+        "200":
+          description: Ad updated successfully
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden (not allowed)
+        "404":
+          description: Ad not found
+
+    delete:
+      summary: Delete an ad (Agent)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Ad deleted successfully
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden (not allowed)
+        "404":
+          description: Ad not found
+  /ads/match/{id}:
+    get:
+      summary: Match an ad with property requests
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+      responses:
+        "200":
+          description: Matched property requests
+        "404":
+          description: Ad not found
+
+  # Property Requests Endpoints
+  /requests:
+    post:
+      summary: Create a new property request (Client)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                propertyType:
+                  type: string
+                area:
+                  type: number
+                price:
+                  type: number
+                city:
+                  type: string
+                district:
+                  type: string
+                description:
+                  type: string
+      responses:
+        "200":
+          description: Property request created successfully
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+
+  /requests/{id}:
+    get:
+      summary: Get a specific property request
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Property request details
+        "404":
+          description: Property request not found
+
+    put:
+      summary: Update a property request (Client)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                description:
+                  type: string
+                area:
+                  type: number
+                price:
+                  type: number
+      responses:
+        "200":
+          description: Property request updated successfully
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden (not allowed)
+        "404":
+          description: Property request not found
+
+    delete:
+      summary: Delete a property request (Client)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Property request deleted successfully
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden (not allowed)
+        "404":
+          description: Property request not found
+
+  # User Statistics Endpoint
+  /user:
+    get:
+      summary: Get user statistics (Admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+      responses:
+        "200":
+          description: User statistics
+        "401":
+          description: Unauthorized
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
